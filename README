@@ -1,0 +1,101 @@
+/********************************************************************
+ * README
+ * Authors: Jack Burns (jburns08) & Ryan Ghayour (rghayo01)
+ * um.c um_mem.c um_mem.h um_operations.c um_operations.h various test
+ * files
+ * April 15, 2020
+ ******************************************************************/
+
+We recieved help with some UM concepts and debugging from Adam, Byron, and 
+Jessica (TAs) during online office hours.
+
+-------------------------------------------------------------------------------
+
+To the best of our knowledge we have correctly implemented the following:
+
+ - um_operations.c: This implements 13 operator functions that interact with
+ memory by calling functions from um_mem
+
+ - um_operations.h: This is the interface for um_operations
+
+ - um_mem.c: This contains the implentation of out memory struct, as well as
+ various operations to manipulate memory fields, and functions to initialize
+ and free memory.
+
+ - um_mem.h: This is the interface for um_mem.c
+
+ - um.c: This is the driver file that reads in the input file, makes a call
+ to set up the um's main memory (from um_mem.h), initialize and populate the
+ zero segment, and finally, loop through each instruction, calling the proper
+ operator in um_operations.h
+
+-------------------------------------------------------------------------------
+
+Significant departures: Our design was admittedly unsatisfactory, and in the
+process of working through our assignment we found many areas in which we 
+needed to improve. Our architecture in particular was not well planned out 
+beforehand, therefore the process of creating a working memory struct with all
+of the necessary implementations proved to be a challenge. In the end, however,
+we were able to pull through and create a stable, well organized, functional
+architecture as seen below.
+
+-------------------------------------------------------------------------------
+
+Architecture:
+The architecture of our program relies heavily on Hanson's sequences. Our main
+memory is a Seq_T Hanson structure, and each element of the main memory Seq_T
+contains another Seq_T, which represent the various segments in the UM memory.
+Those Seq_T structures that branch off of the main "spine" Seq_T contain
+pointers to uint32_ts. These uint32_ts represent the instructions and values
+stored in each segment. This sequence of sequences is contained within a 
+"Memory" struct. This struct also contains a sequence of unmapped identifiers,
+which is checked every time a new segment is created, as well as a program
+counter and a sequence containing our 8 registers holding uint32s. Functions
+that alter this memory are contained in our umoperations.h file, and these 
+operations are called in our main function in um.c.
+
+Time to execute 50 million instructions: 1,072,679 seconds: 50,000,000 / 11420
+instructions in sandmark * 245 seconds for sandmark = 1,072,679 seconds for 50
+million instructions.
+
+-------------------------------------------------------------------------------
+
+UM unit tests:
+- halt.um - tests if program can quit successfully by calling halt once.
+- loadVal.um - tests if the program can successfully load a value into a 
+  register without failing, by calling loadVal once.
+- halt-verbose.um - tests if program will execute instructions after halt has 
+  been called, by appending other instructions to the stream after halt is 
+  called.
+- add.um - tests if the program can successfully add two numbers without 
+  failing, by added two registers together.
+- print-six.um - tests output, as well as assuring add works by adding two
+  registers, and printing the result.
+- mul.um - tests if the program can successfully multiply two values by
+  multiplying two registers and outputting the product.
+- div.um - tests if the program can successfully divide two valus by dividing
+  two registers and outputting the product.
+- cMov.um - tests if the program can perform a conditional move by attempting a
+  move when rc = 0 and when rc != 0. Both registers are outputted as well.
+- nand.um - tests bitwise nand by performing it on two large values, and
+  outputting the resulting ascii value.
+- map.um - tests if the map segment function is completed without errors
+  or leaks by calling it for a size > 0.
+- unmap.um - tests if a mapped segment can be successfully unmapped without
+  leaks or errors.
+- remap.um - tests if a unmapped segment can be successfully remapped onto by
+  unmapping and remapping at different intervals with different size sequences.
+- store.um - maps a segment and stores a value into an index of the segment, 
+  this is used to make sure storage successfully occurs.
+- input.um - tests if program can successfully take in an input by calling
+  input and printing the register stored by the input.
+
+Writing a test for load program was difficult, so we tested the rest of our
+program's functionality by running all of the files contained in umbin.
+
+-------------------------------------------------------------------------------
+
+We spent approximately:
+ 4 hours analyzing the assignment
+ 6 hours preparing our design
+ 32 hours solving problems after our analysis
